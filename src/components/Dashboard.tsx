@@ -7,10 +7,14 @@ import {
   CheckCircle,
   User,
   Headphones,
-  Wrench
+  Wrench,
+  LogOut
 } from "lucide-react";
 import { MetricCard } from "./MetricCard";
 import { MessagePanel } from "./MessagePanel";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 // Mock data for demonstration
 const ticketData = {
@@ -28,11 +32,34 @@ const ticketData = {
 };
 
 export const Dashboard = () => {
+  const { user, signOut } = useAuth();
+  const { toast } = useToast();
+
+  const handleLogout = async () => {
+    await signOut();
+    toast({
+      title: "Logout realizado",
+      description: "Você foi desconectado com sucesso.",
+    });
+  };
+
   return (
     <div className="min-h-screen dashboard-bg">
       <div className="flex h-screen">
         {/* Main Dashboard Content */}
         <div className="flex-1 p-8 pr-4">
+          {/* User Header */}
+          <div className="flex justify-between items-center mb-6 p-4 bg-card rounded-lg border">
+            <div>
+              <p className="text-sm text-muted-foreground">Logado como</p>
+              <p className="font-semibold">{user?.email}</p>
+            </div>
+            <Button variant="outline" size="sm" onClick={handleLogout}>
+              <LogOut className="h-4 w-4 mr-2" />
+              Sair
+            </Button>
+          </div>
+
           {/* Header */}
           <div className="mb-8 animate-fade-in">
             <h1 className="text-4xl font-bold text-foreground mb-2">
