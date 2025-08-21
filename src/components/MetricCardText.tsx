@@ -1,9 +1,9 @@
 import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface MetricCardProps {
+interface MetricCardTextProps {
   title: string;
-  value: number;
+  value: string;
   icon: LucideIcon;
   variant?: "default" | "primary" | "success" | "danger" | "warning";
   subtitle?: string;
@@ -11,15 +11,15 @@ interface MetricCardProps {
   style?: React.CSSProperties;
 }
 
-export const MetricCard = ({ 
+export const MetricCardText = ({ 
   title, 
   value, 
   icon: Icon, 
   variant = "default", 
   subtitle,
   className,
-  style 
-}: MetricCardProps) => {
+  style
+}: MetricCardTextProps) => {
   const getVariantClasses = () => {
     switch (variant) {
       case "primary":
@@ -48,11 +48,6 @@ export const MetricCard = ({
         <div className="p-3 rounded-lg bg-white/20 backdrop-blur-sm">
           <Icon className="w-6 h-6" />
         </div>
-        {variant === "danger" && value > 0 && (
-          <div className="animate-pulse-soft">
-            <div className="w-3 h-3 bg-white rounded-full"></div>
-          </div>
-        )}
       </div>
       
       <div className="space-y-2">
