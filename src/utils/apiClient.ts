@@ -72,9 +72,9 @@ export class ApiClient {
     });
   }
 
-  // Dashboard data
+  // Dashboard data - now public, no auth needed
   async getDashboardData(): Promise<DashboardData> {
-    return this.authenticatedRequest('/api/dashboard');
+    return this.publicRequest('/api/dashboard');
   }
 
   // Tickets

@@ -1,16 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
 import { apiClient } from '@/utils/apiClient';
 import { DashboardData } from '@/types/api';
 import { MetricCard } from '@/components/MetricCard';
 import { MetricCardText } from '@/components/MetricCardText';
 import { MessagePanel } from '@/components/MessagePanel';
-import { Button } from '@/components/ui/button';
-import { Loader2, LogOut, Users, AlertTriangle, Server, Clock, Target } from 'lucide-react';
+import { Loader2, Users, AlertTriangle, Server, Clock, Target } from 'lucide-react';
 
 export const Dashboard: React.FC = () => {
-  const { user, signOut } = useAuth();
   const { toast } = useToast();
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -34,21 +31,6 @@ export const Dashboard: React.FC = () => {
     fetchDashboardData();
   }, [toast]);
 
-  const handleLogout = async () => {
-    try {
-      await signOut();
-      toast({
-        title: "Logout realizado",
-        description: "Você foi desconectado com sucesso.",
-      });
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Erro no logout",
-        description: "Ocorreu um erro ao fazer logout.",
-      });
-    }
-  };
 
   if (loading) {
     return (
@@ -84,17 +66,9 @@ export const Dashboard: React.FC = () => {
               <div>
                 <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
                 <p className="text-muted-foreground mt-1">
-                  Bem-vindo, {user?.name || user?.email}
+                  Sistema de Monitoramento
                 </p>
               </div>
-              <Button 
-                variant="outline" 
-                onClick={handleLogout}
-                className="flex items-center gap-2"
-              >
-                <LogOut className="h-4 w-4" />
-                Sair
-              </Button>
             </div>
 
             {/* Main Dashboard */}
