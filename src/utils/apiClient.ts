@@ -44,49 +44,17 @@ export class ApiClient {
       ...options.headers,
     };
 
-    try {
-      const response = await fetch(`${this.baseURL}${endpoint}`, {
-        ...options,
-        headers,
-      });
+    const response = await fetch(`${this.baseURL}${endpoint}`, {
+      ...options,
+      headers,
+    });
 
-      if (!response.ok) {
-        throw new Error(`API Error: ${response.status} ${response.statusText}`);
-      }
-
-      // Verificar se a resposta é JSON válido
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        throw new Error('API retornou formato inválido (HTML ao invés de JSON)');
-      }
-
-      return response.json();
-    } catch (error: any) {
-      // Se a API Flask não estiver funcionando, usar dados mock
-      console.warn('Usando dados mock devido a erro na API:', error.message);
-      return this.getMockData(endpoint);
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `API Error: ${response.status} ${response.statusText}`);
     }
-  }
 
-  // Dados mock temporários para desenvolvimento
-  private getMockData(endpoint: string) {
-    if (endpoint === '/api/dashboard') {
-      return {
-        totalTickets: 47,
-        overdueTickets: 12,
-        serverAlerts: 3,
-        byResponsible: [
-          { name: 'João Silva', tickets: 15 },
-          { name: 'Maria Santos', tickets: 12 },
-          { name: 'Pedro Costa', tickets: 8 },
-          { name: 'Ana Oliveira', tickets: 7 },
-          { name: 'Carlos Lima', tickets: 5 }
-        ],
-        avgServiceTime: '2h 45min',
-        resolutionRate: 85
-      };
-    }
-    return {};
+    return response.json();
   }
 
   // Autenticação
@@ -104,9 +72,52 @@ export class ApiClient {
     });
   }
 
-  // Dashboard data - now public, no auth needed
+  // Dashboard data - usar endpoint /api/dados
   async getDashboardData(): Promise<DashboardData> {
-    return this.publicRequest('/api/dashboard');
+    try {
+      const response = await fetch(`${this.baseURL}/api/dados`);
+      
+      if (!response.ok) {
+        throw new Error(`Erro HTTP: ${response.status}`);
+      }
+
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('API retornou formato inválido (esperado JSON)');
+      }
+
+      const data = await response.json();
+      console.log("Dados recebidos da API:", data);
+      
+      // Mapear dados da API para o formato esperado pelo dashboard
+      return {
+        totalTickets: data.tickets?.length || 0,
+        overdueTickets: data.tickets?.filter((t: any) => t.atrasado)?.length || 0,
+        serverAlerts: data.alertas?.length || 0,
+        byResponsible: data.tickets?.reduce((acc: any[], ticket: any) => {
+          const existing = acc.find(item => item.name === ticket.responsavel);
+          if (existing) {
+            existing.tickets++;
+          } else {
+            acc.push({ name: ticket.responsavel, tickets: 1 });
+          }
+          return acc;
+        }, []) || [],
+        avgServiceTime: data.tempo_medio || "N/A",
+        resolutionRate: data.taxa_resolucao || 0
+      };
+    } catch (error: any) {
+      console.error("Erro ao carregar dados:", error);
+      // Retornar estrutura vazia em caso de erro
+      return {
+        totalTickets: 0,
+        overdueTickets: 0,
+        serverAlerts: 0,
+        byResponsible: [],
+        avgServiceTime: "N/A",
+        resolutionRate: 0
+      };
+    }
   }
 
   // Tickets
