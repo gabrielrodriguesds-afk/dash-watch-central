@@ -87,28 +87,44 @@ export class ApiClient {
       }
 
       const data = await response.json();
-      console.log("Dados recebidos da API Milvus:", data);
+      console.log("Dados recebidos da API Milvus (estrutura completa):", JSON.stringify(data, null, 2));
       
       // Mapear dados da API do Milvus para o formato esperado pelo dashboard
-      const chamados = data.chamados || data.data || data || [];
+      // Verificar diferentes estruturas possíveis de resposta da API
+      let chamados = [];
+      
+      if (Array.isArray(data)) {
+        chamados = data;
+      } else if (data.chamados && Array.isArray(data.chamados)) {
+        chamados = data.chamados;
+      } else if (data.data && Array.isArray(data.data)) {
+        chamados = data.data;
+      } else if (data.resultados && Array.isArray(data.resultados)) {
+        chamados = data.resultados;
+      } else {
+        console.log("Estrutura de dados não reconhecida, usando array vazio");
+        chamados = [];
+      }
+      
+      console.log("Chamados extraídos:", chamados);
+      console.log("Número total de chamados:", chamados.length);
       
       // Calcular métricas dos chamados
       const totalTickets = chamados.length;
       
-      // Chamados em atraso (assumindo que há um campo de status ou data)
+      // Chamados em atraso (baseado nos campos reais da API do Milvus)
       const overdueTickets = chamados.filter((chamado: any) => {
         return chamado.status === 'atrasado' || 
                chamado.situacao === 'atrasado' ||
                chamado.prioridade === 'alta' ||
-               chamado.prioridade === 'crítica';
+               chamado.prioridade === 'crítica' ||
+               chamado.urgencia === 'alta';
       }).length;
       
-      // Alertas do servidor (simulado baseado em chamados críticos)
-      const serverAlerts = chamados.filter((chamado: any) => 
-        chamado.prioridade === 'crítica' || 
-        chamado.categoria?.includes('servidor') ||
-        chamado.tipo?.includes('servidor')
-      ).length;
+      // *** ALERTAS DE SERVIDOR ***
+      // Como não existe na API do Milvus, mantendo valor fixo
+      // Para adicionar dados reais, modifique esta lógica baseado nos campos da API
+      const serverAlerts = 0; // ou chamados.filter baseado em campos específicos da sua API
       
       // Agrupar chamados por responsável
       const byResponsible = chamados.reduce((acc: any[], chamado: any) => {
