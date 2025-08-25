@@ -8,7 +8,6 @@ interface MetricCardProps {
   variant?: "default" | "primary" | "success" | "danger" | "warning";
   subtitle?: string;
   className?: string;
-  style?: React.CSSProperties;
 }
 
 export const MetricCard = ({ 
@@ -17,8 +16,7 @@ export const MetricCard = ({
   icon: Icon, 
   variant = "default", 
   subtitle,
-  className,
-  style 
+  className 
 }: MetricCardProps) => {
   const getVariantClasses = () => {
     switch (variant) {
@@ -36,14 +34,11 @@ export const MetricCard = ({
   };
 
   return (
-    <div 
-      className={cn(
-        "p-6 rounded-xl transition-all duration-300 animate-scale-in",
-        getVariantClasses(),
-        className
-      )}
-      style={style}
-    >
+    <div className={cn(
+      "p-6 rounded-xl transition-all duration-300 animate-scale-in",
+      getVariantClasses(),
+      className
+    )}>
       <div className="flex items-center justify-between mb-4">
         <div className="p-3 rounded-lg bg-white/20 backdrop-blur-sm">
           <Icon className="w-6 h-6" />
