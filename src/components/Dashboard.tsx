@@ -56,6 +56,12 @@ export const Dashboard: React.FC = () => {
     console.log("Iniciando fetchData...");
     try {
       setConnectionStatus('waiting');
+      
+      // Log detalhado da tentativa de conexão
+      const backendUrl = import.meta.env.VITE_API_URL || 'http://192.168.255.1:3000';
+      console.log(`Tentando conectar em: ${backendUrl}/api/chamados`);
+      console.log(`Origem da requisição: ${window.location.origin}`);
+      
       const data = await apiClient.getDashboardData();
       console.log("Dados recebidos do apiClient:", data);
       
@@ -96,8 +102,17 @@ export const Dashboard: React.FC = () => {
       console.error("Erro ao carregar dados no fetchData:", error);
       setConnectionStatus('disconnected');
       
-      // Verifica se é erro de rate limit (429) ou loading (503)
-      if (error.message.includes('429') || error.message.includes('aguarde')) {
+      // Melhor tratamento de erro para diagnosticar problemas de conectividade
+      if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
+        toast({
+          variant: "destructive",
+          title: "Erro de Conectividade",
+          description: `Não foi possível conectar com o backend. Verifique se:
+          1. O servidor está rodando na porta 3000
+          2. O CORS está configurado para permitir ${window.location.origin}
+          3. Não há firewall bloqueando a conexão`,
+        });
+      } else if (error.message.includes('429') || error.message.includes('aguarde')) {
         toast({
           variant: "default",
           title: "API Milvus - Aguardando",
@@ -272,9 +287,9 @@ export const Dashboard: React.FC = () => {
 
           {/* Additional Metrics Placeholder */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <MetricCard
+            <MetricCardText
               title="Tempo Médio de Atendimento"
-              value={dashboardData.avgServiceTime}
+              value={dashboardData.avgServiceTime.toString()}
               icon={Clock}
               variant="success"
               subtitle="minutos"
@@ -282,7 +297,7 @@ export const Dashboard: React.FC = () => {
             
             <MetricCard
               title="Taxa de Resolução"
-              value={`${dashboardData.resolutionRate}%`}
+              value={dashboardData.resolutionRate}
               icon={CheckCircle}
               variant="success"
               subtitle="% hoje"

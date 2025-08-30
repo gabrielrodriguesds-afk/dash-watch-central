@@ -30,13 +30,16 @@ export interface DashboardData {
   totalOpen: number;
   overdue: number;
   serverAlerts: number;
-  avgServiceTime: string;
+  avgServiceTime: string | number;
   resolutionRate: number;
   byResponsible: Array<{
     name: string;
     tickets: number;
     color?: string;
   }>;
+  nextUpdate?: string;
+  lastUpdate?: string;
+  error?: string;
 }
 
 export interface Ticket {
