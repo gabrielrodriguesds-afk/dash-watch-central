@@ -32,6 +32,8 @@ export interface DashboardData {
   serverAlerts: number;
   avgServiceTime: string | number;
   resolutionRate: number;
+  ticketsAbertosHoje?: number;
+  ticketsFechadosHoje?: number;
   byResponsible: Array<{
     name: string;
     tickets: number;

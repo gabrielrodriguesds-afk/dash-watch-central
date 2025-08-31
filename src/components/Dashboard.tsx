@@ -9,7 +9,8 @@ import {
   Headphones,
   Wrench,
   Wifi,
-  WifiOff
+  WifiOff,
+  Plus
 } from "lucide-react";
 import { MetricCard } from "./MetricCard";
 import { MessagePanel } from "./MessagePanel";
@@ -285,22 +286,32 @@ export const Dashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Additional Metrics Placeholder */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <MetricCardText
-              title="Tempo Médio de Atendimento"
-              value={dashboardData.avgServiceTime.toString()}
-              icon={Clock}
-              variant="success"
-              subtitle="minutos"
+          {/* Additional Metrics */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="md:col-span-2">
+              <MetricCardText
+                title="Tempo Médio de Atendimento"
+                value={dashboardData.avgServiceTime.toString()}
+                icon={Clock}
+                variant="success"
+                subtitle="minutos"
+              />
+            </div>
+            
+            <MetricCard
+              title="Tickets Abertos Hoje"
+              value={dashboardData.ticketsAbertosHoje || 0}
+              icon={Plus}
+              variant="primary"
+              subtitle="novos hoje"
             />
             
             <MetricCard
-              title="Taxa de Resolução"
-              value={dashboardData.resolutionRate}
+              title="Tickets Fechados Hoje"
+              value={dashboardData.ticketsFechadosHoje || 0}
               icon={CheckCircle}
               variant="success"
-              subtitle="% hoje"
+              subtitle="resolvidos hoje"
             />
           </div>
         </div>
